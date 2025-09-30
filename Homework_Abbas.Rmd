@@ -1,0 +1,202 @@
+---
+title: "Homework 1"
+Name: Saheedat Olasumbo Abbas
+Date: September 29, 2025
+---
+
+```{r}
+## Question 1 
+
+setwd("C:/Users/warms/OneDrive/Desktop/MSDTI/Data_Mining/Homework1")
+
+#Read Su_raw_matrix.txt as a data frame called 'su'
+su <- read.delim("Su_raw_matrix.txt", header = TRUE, sep = "\t", check.names = TRUE, row.names = 1)
+
+names(su)
+
+#Mean & SD (ignore missing values if any)
+mean_Liver2 <- mean(su[["Liver_2.CEL"]], na.rm = TRUE)
+sd_Liver2   <- sd(su[["Liver_2.CEL"]],   na.rm = TRUE)
+
+mean_Liver2
+sd_Liver2
+
+# Identify numeric columns
+num_cols <- sapply(su, is.numeric)
+
+# Use colMeans and colSums functions to get the average and total values of each column.
+cm <- colMeans(su[, num_cols, drop = FALSE], na.rm = TRUE)
+cs <- colSums( su[, num_cols, drop = FALSE], na.rm = TRUE)
+
+# View results
+head(cm)
+head(cs)
+```
+
+```{r}
+library(ggplot2)
+set.seed(123)
+
+# Make a data frame with both distributions
+df <- data.frame(
+  value = c(rnorm(10000, mean = 0, sd = 0.2),
+            rnorm(10000, mean = 0, sd = 0.5)),
+  sigma = factor(rep(c("0.2", "0.5"), each = 10000))
+)
+
+ggplot(df, aes(x = value, fill = sigma)) +
+  geom_histogram(binwidth = 0.1, alpha = 0.6, position = "identity") +
+  facet_wrap(~sigma, ncol = 1) +
+  scale_x_continuous(limits = c(-5, 5), oob = scales::oob_squish) +
+  labs(title = "Histograms of Normal(0, σ²)",
+       x = "Value", y = "Frequency",
+       fill = "σ") +
+  theme_minimal()
+
+```
+```{r}
+library(ggplot2)
+
+#3a — Create the sample dat dataframe 
+set.seed(123)
+dat <- data.frame(
+  cond   = factor(rep(c("A","B"), each = 200)),
+  rating = c(rnorm(200), rnorm(200, mean = 0.8))
+)
+
+#3b- Overlaid histograms
+p3b <- ggplot(dat, aes(x = rating, fill = cond)) +
+  geom_histogram(binwidth = 0.5, alpha = 0.5, position = "identity", color = "black") +
+  labs(title = "Overlaid histograms", x = "rating", y = "count", fill = "Group")
+p3b
+
+#3c- Interleaved (side-by-side) histograms
+p3c <- ggplot(dat, aes(x = rating, fill = cond)) +
+  geom_histogram(binwidth = 0.5, position = "dodge", color = "black") +
+  labs(title = "Interleaved histograms", x = "rating", y = "count", fill = "Group")
+p3c
+
+#3d- Density plots (lines)
+p3d <- ggplot(dat, aes(x = rating, colour = cond)) +
+  geom_density(linewidth = 1) +
+  labs(title = "Density plots", x = "rating", y = "density", colour = "Group")
+p3d
+
+#3e- Density plots with semitransparent fill
+p3e <- ggplot(dat, aes(x = rating, fill = cond)) +
+  geom_density(alpha = 0.3) +
+  labs(title = "Filled density plots", x = "rating", y = "density", fill = "Group")
+p3e
+
+```
+
+
+```{r}
+#Using the Diabetes Dataset
+setwd("C:/Users/warms/OneDrive/Desktop/MSDTI/Data_Mining/Homework1")
+diabetes <- read.csv("diabetes_train.csv")
+str(diabetes)  # confirm columns: expect 'mass' (numeric) and 'class' (factor/character)
+diabetes$class <- as.factor(diabetes$class)
+
+```
+
+
+```{r}
+#Overlaid histograms:
+d3b <- ggplot(diabetes, aes(x = mass, fill = class)) +
+  geom_histogram(binwidth = 2, alpha = 0.5, position = "identity", color = "black") +
+  labs(title = "Diabetes: Overlaid histograms of mass", x = "mass", y = "count", fill = "class")
+d3b
+
+#Interleaved histograms:
+d3c <- ggplot(diabetes, aes(x = mass, fill = class)) +
+  geom_histogram(binwidth = 2, position = "dodge", color = "black") +
+  labs(title = "Diabetes: Interleaved histograms of mass", x = "mass", y = "count", fill = "class")
+d3c
+
+#Density (lines):
+d3d <- ggplot(diabetes, aes(x = mass, colour = class)) +
+  geom_density(linewidth = 1) +
+  labs(title = "Diabetes: Density of mass", x = "mass", y = "density", colour = "class")
+d3d
+
+#Density (filled):
+d3e <- ggplot(diabetes, aes(x = mass, fill = class)) +
+  geom_density(alpha = 0.3) +
+  labs(title = "Diabetes: Filled density of mass", x = "mass", y = "density", fill = "class")
+d3e
+
+```
+
+```{r}
+ggsave("Q3b_overlaid_hist_dat.png", p3b, width = 7, height = 5, dpi = 300)
+ggsave("Q3c_interleaved_hist_dat.png", p3c, width = 7, height = 5, dpi = 300)
+ggsave("Q3d_density_dat.png",        p3d, width = 7, height = 5, dpi = 300)
+ggsave("Q3e_densityfill_dat.png",    p3e, width = 7, height = 5, dpi = 300)
+
+ggsave("Q3f_overlaid_hist_diabetes.png", d3b, width = 7, height = 5, dpi = 300)
+ggsave("Q3f_interleaved_hist_diabetes.png", d3c, width = 7, height = 5, dpi = 300)
+ggsave("Q3f_density_diabetes.png",        d3d, width = 7, height = 5, dpi = 300)
+ggsave("Q3f_densityfill_diabetes.png",    d3e, width = 7, height = 5, dpi = 300)
+
+```
+
+```{r}
+library(tidyverse)   
+library(tidyr)       
+
+#Read the data
+setwd("C:/Users/warms/OneDrive/Desktop/MSDTI/Data_Mining/Homework1")
+passengers <- read.csv("titanic.csv")
+
+#Drop rows with any NA, then get summary
+passengers %>%
+  drop_na() %>%
+  summary()
+
+#Keep only male passengers
+passengers %>%
+  filter(Sex == "male")
+
+#Sort by Fare descending
+passengers %>%
+  arrange(desc(Fare))
+
+#Add family size = parents/children + siblings/spouses
+passengers %>%
+  mutate(FamSize = Parch + SibSp)
+
+#Group by Sex → mean Fare and number of survivors
+passengers %>%
+  group_by(Sex) %>%
+  summarise(
+    meanFare = mean(Fare, na.rm = TRUE),
+    numSurv  = sum(Survived, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+```
+
+```{r}
+# codse for  the (10th, 30th, 50th, 60th) percentiles of skin
+
+#Read the diabetes data
+diabetes <- read.csv("diabetes_train.csv", stringsAsFactors = FALSE)
+
+# Check for the 'skin' column 
+if (!"skin" %in% names(diabetes)) {
+  skin_col <- grep("^skin$|skin.*thick|skinthickness", names(diabetes), ignore.case = TRUE, value = TRUE)
+  if (length(skin_col) == 0) stop("Couldn't find a 'skin' column in diabetes_train.csv")
+  diabetes$skin <- diabetes[[skin_col[1]]]
+}
+
+#Compute requested percentiles (ignore missing values)
+q_vals <- quantile(diabetes$skin, probs = c(0.10, 0.30, 0.50, 0.60), na.rm = TRUE)
+
+#View
+q_vals
+
+#write to CSV
+write.csv(data.frame(percentile = c("P10","P30","P50","P60"), value = as.numeric(q_vals)),
+          "Q5_skin_percentiles.csv", row.names = FALSE)
+```
